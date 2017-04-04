@@ -1,9 +1,11 @@
-<?php namespace Teepluss\Hmvc\Facades;
+<?php
+
+namespace Teepluss\Hmvc\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class HMVC extends Facade {
-
+class HMVC extends Facade
+{
     /**
      * Get the registered name of the component.
      *
@@ -12,6 +14,8 @@ class HMVC extends Facade {
      *
      * @return string
      */
-    protected static function getFacadeAccessor() { return 'hmvc'; }
-
+    protected static function getFacadeAccessor()
+    {
+        return 'hmvc';
+    }
 }

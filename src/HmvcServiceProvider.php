@@ -1,11 +1,13 @@
-<?php namespace Teepluss\Hmvc;
+<?php
+
+namespace Teepluss\Hmvc;
 
 use Guzzle\Http\Client;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 
-class HmvcServiceProvider extends ServiceProvider {
-
+class HmvcServiceProvider extends ServiceProvider
+{
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -31,8 +33,7 @@ class HmvcServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->singleton('hmvc', function($app)
-        {
+        $this->app->singleton('hmvc', function ($app) {
             $config = [];
 
             $remoteClient = new Client();
@@ -48,7 +49,6 @@ class HmvcServiceProvider extends ServiceProvider {
      */
     public function provides()
     {
-        return array('hmvc');
+        return ['hmvc'];
     }
-
 }
