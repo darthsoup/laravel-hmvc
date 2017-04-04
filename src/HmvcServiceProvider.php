@@ -31,24 +31,7 @@ class HmvcServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        // Register providers.
-        $this->registerHmvc();
-
-        // Register commands.
-        //$this->registerHmvcCall();
-
-        // Add to commands.
-        //$this->commands('hmvc.call');
-    }
-
-    /**
-     * Register Api.
-     *
-     * @return void
-     */
-    protected function registerHmvc()
-    {
-        $this->app['hmvc'] = $this->app->share(function($app)
+        $this->app->singleton('hmvc', function($app)
         {
             $config = [];
 
@@ -57,14 +40,6 @@ class HmvcServiceProvider extends ServiceProvider {
             return new Hmvc($config, $app['router'], $app['request'], $remoteClient);
         });
     }
-
-    // protected function registerHmvcCall()
-    // {
-    //     $this->app['hmvc.call'] = $this->app->share(function($app)
-    //     {
-    //         return new Commands\HmvcCallCommand($app['hmvc']);
-    //     });
-    // }
 
     /**
      * Get the services provided by the provider.
