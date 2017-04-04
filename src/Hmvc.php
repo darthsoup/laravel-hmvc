@@ -1,16 +1,17 @@
-<?php namespace Teepluss\Hmvc;
+<?php
+
+namespace Teepluss\Hmvc;
 
 use Guzzle\Http\Client;
+use Illuminate\Config\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Routing\Router;
-use Illuminate\Config\Repository;
-use Illuminate\Support\Facades\Response;
 use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class Hmvc {
-
+class Hmvc
+{
     /**
      * Repository config.
      *
@@ -19,14 +20,14 @@ class Hmvc {
     protected $config;
 
     /**
-     * Router
+     * Router.
      *
      * @var \Illuminate\Routing\Router
      */
     protected $router;
 
     /**
-     * Request
+     * Request.
      *
      * @var \Illuminate\Http\Request
      */
@@ -71,18 +72,18 @@ class Hmvc {
     /**
      * Call internal URI with parameters.
      *
-     * @param  string $uri
-     * @param  string $method
-     * @param  array  $parameters
+     * @param string $uri
+     * @param string $method
+     * @param array  $parameters
+     *
      * @return mixed
      */
-    public function invoke($uri, $method, $parameters = array())
+    public function invoke($uri, $method, $parameters = [])
     {
         // Request URI.
         $uri = '/'.ltrim($uri, '/');
 
-        try
-        {
+        try {
             // Store the original request data and route.
             $originalInput = $this->request->input();
             $originalRoute = $this->router->getCurrentRoute();
@@ -105,20 +106,15 @@ class Hmvc {
             // Dispatch request.
             $dispatch = $this->router->dispatch($request);
 
-            if (method_exists($dispatch, 'getOriginalContent'))
-            {
+            if (method_exists($dispatch, 'getOriginalContent')) {
                 $response = $dispatch->getOriginalContent();
-            }
-            else
-            {
+            } else {
                 $response = $dispatch->getContent();
             }
 
             // Decode json content.
-            if ($dispatch->headers->get('content-type') == 'application/json')
-            {
-                if (function_exists('json_decode') and is_string($response))
-                {
+            if ($dispatch->headers->get('content-type') == 'application/json') {
+                if (function_exists('json_decode') and is_string($response)) {
                     $response = json_decode($response, true);
                 }
             }
@@ -127,13 +123,9 @@ class Hmvc {
             $this->request->replace($originalInput);
 
             return $response;
-        }
-        catch (NotFoundHttpException $e)
-        {
+        } catch (NotFoundHttpException $e) {
             throw new HmvcNotFoundHttpException('Request Not Found.');
-        }
-        catch (FatalErrorException $e)
-        {
+        } catch (FatalErrorException $e) {
             throw new HmvcFatalErrorException($e->getMessage());
         }
     }
@@ -153,11 +145,9 @@ class Hmvc {
      */
     public function configureRemoteClient($configurations)
     {
-        foreach ($configurations as $option => $value)
-        {
-            call_user_func_array(array($this->remoteClient, 'setDefaultOption'), array($option, $value));
+        foreach ($configurations as $option => $value) {
+            call_user_func_array([$this->remoteClient, 'setDefaultOption'], [$option, $value]);
         }
-
 
         //sd($this->remoteClient);
 
@@ -167,17 +157,18 @@ class Hmvc {
     /**
      * Invoke with remote request.
      *
-     * @param  string $uri
-     * @param  string $method
-     * @param  array  $parameters
+     * @param string $uri
+     * @param string $method
+     * @param array  $parameters
+     *
      * @return mixed
      */
-    public function invokeRemote($uri, $method = 'GET', $parameters = array())
+    public function invokeRemote($uri, $method = 'GET', $parameters = [])
     {
         $remoteClient = $this->getRemoteClient();
 
         // Make request.
-        $request = call_user_func_array(array($remoteClient, $method), array($uri, null, $parameters));
+        $request = call_user_func_array([$remoteClient, $method], [$uri, null, $parameters]);
 
         // Ignore all SSL case.
         $request->getCurlOptions()->set(CURLOPT_SSL_VERIFYHOST, false);
@@ -190,10 +181,8 @@ class Hmvc {
         $body = (string) $response->getBody();
 
         // Decode json content.
-        if ($response->getContentType() == 'application/json')
-        {
-            if (function_exists('json_decode') and is_string($body))
-            {
+        if ($response->getContentType() == 'application/json') {
+            if (function_exists('json_decode') and is_string($body)) {
                 $body = json_decode($body, true);
             }
         }
@@ -206,22 +195,19 @@ class Hmvc {
      *
      * @return mixed
      */
-    public function __call($method, $parameters = array())
+    public function __call($method, $parameters = [])
     {
-        if (in_array($method, array('get', 'patch', 'post', 'put', 'delete')))
-        {
+        if (in_array($method, ['get', 'patch', 'post', 'put', 'delete'])) {
             $uri = array_shift($parameters);
 
             $parameters = current($parameters);
-            $parameters = is_array($parameters) ? $parameters : array();
+            $parameters = is_array($parameters) ? $parameters : [];
 
-            if (preg_match('/^http(s)?/', $uri))
-            {
+            if (preg_match('/^http(s)?/', $uri)) {
                 return $this->invokeRemote($uri, $method, $parameters);
             }
 
             return $this->invoke($uri, $method, $parameters);
         }
     }
-
 }
