@@ -1,6 +1,6 @@
 <?php namespace Teepluss\Hmvc;
 
-use Symfony\Component\HttpKernel\Exception\FatalErrorException;
+use Symfony\Component\Debug\Exception\FatalErrorException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HmvcFatalErrorException extends FatalErrorException {}
